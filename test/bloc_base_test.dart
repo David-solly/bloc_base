@@ -22,7 +22,7 @@ void main() {
       /// create an [HandlerFunction] as a variable to
       ///
       final HandlerFunction f = (event) {
-        return HandlerReturnPublishTrue(
+        return HandlerPublish(
           event * 3,
         );
       };
@@ -34,13 +34,13 @@ void main() {
       /// Add an [HandlerFunction] literal
       pipe.addHandler((event) {
         print("received event in second one $event");
-        return HandlerReturnPublishTrue(event);
+        return HandlerPublish(event);
       });
 
       test("test data pass through", () {
         int data = 333;
         pipe.publish(data);
-        expectLater((f(data)).runtimeType, HandlerReturnPublishTrue);
+        expectLater((f(data)).runtimeType, HandlerPublish);
         expectLater(f(data).event, data * 3);
       });
     });
@@ -49,7 +49,7 @@ void main() {
       ///adding [fAsync] as variable
       final AsyncHandlerFunction fAsync = (event) async {
         await Future.delayed(Duration(seconds: 3));
-        return HandlerReturnPublishTrue(
+        return HandlerPublish(
           "Async event is \n{\n 'data': '$event' \n}",
         );
       };
@@ -62,7 +62,7 @@ void main() {
       /// the internal [pipe] list
       pipe.addAsyncHandler((event) async {
         print("received event in async processor $event");
-        return HandlerReturnPublishTrue(event);
+        return HandlerPublish(event);
       });
 
       test("test async data pass through", () async {
@@ -70,7 +70,7 @@ void main() {
         String data = "333";
         String output = "Async event is \n{\n 'data': '$data' \n}";
         expectLater(((await fAsync(data)) is HandlerReturnType),
-            HandlerReturnPublishFalse("") is HandlerReturnType);
+            HandlerDiscard("") is HandlerReturnType);
         expectLater((await fAsync(data)).event, output);
       });
     });

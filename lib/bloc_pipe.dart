@@ -186,7 +186,9 @@ class BlocPipe extends BlocPipeSpec {
 
 /// [HandlerReturnType] object returned by every [HandlerFunction]
 ///
-/// this [event] the data event returned after it has been through the [HandlerFunction]
+/// the [event] is the data event returned after it has been through the [HandlerFunction]
+/// [shouldPublish] is the flag signalling the [BlocPipe]
+/// whether or not to publish the data to the outgoing [dataStream]
 abstract class HandlerReturnType {
   final event;
   final bool shouldPublish;
@@ -196,19 +198,19 @@ abstract class HandlerReturnType {
 
 /// [HandlerReturnType] object returned by every [HandlerFunction]
 ///
-/// this [event] the data event returned after it has been through the [HandlerFunction]
-/// returns `false` by default
-class HandlerReturnPublishFalse extends HandlerReturnType {
-  HandlerReturnPublishFalse(
+/// The [event] is the data event returned after it has been through the [HandlerFunction]
+/// [shouldPublish] returns `false` by default
+class HandlerDiscard extends HandlerReturnType {
+  HandlerDiscard(
     event,
   ) : super(event, shouldPublish: false);
 }
 
 /// [HandlerReturnType] object returned by every [HandlerFunction]
 ///
-/// returns `true` by default
-class HandlerReturnPublishTrue extends HandlerReturnType {
-  HandlerReturnPublishTrue(
+/// [shouldPublish] returns `true` by default
+class HandlerPublish extends HandlerReturnType {
+  HandlerPublish(
     event,
   ) : super(event, shouldPublish: true);
 }

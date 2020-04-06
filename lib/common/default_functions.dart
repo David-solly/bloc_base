@@ -34,6 +34,6 @@ class DefaultFunctions {
     hasToString: false,
   }) {
     print("received event ${hasToString ? event.toString() : event}");
-    return HandlerReturnPublishTrue(event);
+    return HandlerPublish(event);
   }
 }
