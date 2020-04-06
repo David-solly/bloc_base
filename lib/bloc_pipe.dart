@@ -127,5 +127,5 @@ class HandlerReturn {
   final event;
   final bool shouldPublish;
 
-  HandlerReturn(this.event, {this.shouldPublish: true});
+  HandlerReturn(this.event, {this.shouldPublish: false});
 }
