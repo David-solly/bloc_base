@@ -6,18 +6,18 @@ class DefaultFunctions {
       List<HandlerFunction> functionList, List<HandlerFunction> originalList) {
     assert(originalList != null,
         "Warning attempting to append functionList to a null list");
-    functionList.forEach((handlerFunction) {
-      if (handlerFunction != null) originalList.add(handlerFunction);
-    });
+    if (functionList != null)
+      functionList.forEach((handlerFunction) {
+        if (handlerFunction != null) originalList.add(handlerFunction);
+      });
   }
 
   /// Simple [HandlerFunction] that prints out the event to console
   ///
   /// [processor] is not used in this funtion
-  HandlerReturn simpleLogHandler(
+  static HandlerReturn simpleLogHandler(
     /// the data being passed through the [BlocPipe]
     event, {
-    StreamEventHandler processor,
 
     /// set [hasToString] to call the object `toString()` function
     hasToString: false,

@@ -3,10 +3,15 @@ import 'dart:async';
 import 'package:bloc_base/bloc_base.dart';
 import 'package:bloc_base/common/default_functions.dart';
 
-typedef void StreamEventHandler(event);
+/// A returns modified event [Function] that takes [event] as an argument
+typedef StreamEventHandler(event);
 
 /// A [Function] that is used to process sink events and return a [HandlerReturn]
-typedef HandlerReturn HandlerFunction(event, {StreamEventHandler processor});
+///
+/// the data [event] being passed through the [BlocPipe]
+/// will be processed by the [processor]
+
+typedef HandlerReturn HandlerFunction(event);
 
 /// Adds [functionList] to [originalList]
 typedef void UpdateList(
@@ -76,7 +81,7 @@ class BlocPipe extends BlocPipeSpec {
     _handlers.forEach((eventHandler) {
       /// Executes each handler in turn and then publishes to the subscribers
       /// for each handler in the list
-      _confirmShouldPublish(eventHandler(event), _dataSink);
+      _confirmShouldPublish(eventHandler(event), _internalDataStreamSink);
     });
 
     print("finished processing _handlers");
@@ -122,5 +127,5 @@ class HandlerReturn {
   final event;
   final bool shouldPublish;
 
-  HandlerReturn(this.event, {this.shouldPublish: false});
+  HandlerReturn(this.event, {this.shouldPublish: true});
 }
