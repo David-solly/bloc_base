@@ -22,7 +22,9 @@ void main() {
       /// create an [HandlerFunction] as a variable to
       ///
       final HandlerFunction f = (event) {
-        return HandlerReturn(event * 3, shouldPublish: true);
+        return HandlerReturnPublishTrue(
+          event * 3,
+        );
       };
 
       /// Add an [HandlerFunction] as a variable to
@@ -32,13 +34,13 @@ void main() {
       /// Add an [HandlerFunction] literal
       pipe.addHandler((event) {
         print("received event in second one $event");
-        return HandlerReturn(event);
+        return HandlerReturnPublishTrue(event);
       });
 
       test("test data pass through", () {
         int data = 333;
         pipe.publish(data);
-        expectLater((f(data)).runtimeType, HandlerReturn);
+        expectLater((f(data)).runtimeType, HandlerReturnPublishTrue);
         expectLater(f(data).event, data * 3);
       });
     });
@@ -47,8 +49,9 @@ void main() {
       ///adding [fAsync] as variable
       final AsyncHandlerFunction fAsync = (event) async {
         await Future.delayed(Duration(seconds: 3));
-        return HandlerReturn("Async event is \n{\n 'data': '$event' \n}",
-            shouldPublish: true);
+        return HandlerReturnPublishTrue(
+          "Async event is \n{\n 'data': '$event' \n}",
+        );
       };
 
       /// Add an [AsyncHandlerFunction] as a variable to
@@ -59,14 +62,15 @@ void main() {
       /// the internal [pipe] list
       pipe.addAsyncHandler((event) async {
         print("received event in async processor $event");
-        return HandlerReturn(event);
+        return HandlerReturnPublishTrue(event);
       });
 
       test("test async data pass through", () async {
         pipe.publish(123456);
         String data = "333";
         String output = "Async event is \n{\n 'data': '$data' \n}";
-        expectLater((await fAsync(data)).runtimeType, HandlerReturn);
+        expectLater(((await fAsync(data)) is HandlerReturnType),
+            HandlerReturnPublishFalse("") is HandlerReturnType);
         expectLater((await fAsync(data)).event, output);
       });
     });

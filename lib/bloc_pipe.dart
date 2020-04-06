@@ -6,14 +6,14 @@ import 'package:bloc_base/common/default_functions.dart';
 /// A returns modified event [Function] that takes [event] as an argument
 typedef StreamEventHandler(event);
 
-/// A [Function] that is used to process sink events and return a [HandlerReturn]
+/// A [Function] that is used to process sink events and return a [HandlerReturnType]
 ///
 /// the data [event] being passed through the [BlocPipe]
 /// will be processed by the [processor]
 
-typedef HandlerReturn HandlerFunction(event);
+typedef HandlerReturnType HandlerFunction(event);
 
-typedef Future<HandlerReturn> AsyncHandlerFunction(event);
+typedef Future<HandlerReturnType> AsyncHandlerFunction(event);
 
 /// Adds [functionList] to [originalList]
 typedef void UpdateList(
@@ -109,13 +109,13 @@ class BlocPipe extends BlocPipeSpec {
   void _processData(event) {
     _handlers.forEach((eventHandler) {
       /// Executes each [eventHandler] in turn
-      /// then publishes to the subscribers if the [HandlerReturn].[shouldPublish] flag is set
+      /// then publishes to the subscribers if the [HandlerReturnType].[shouldPublish] flag is set
       _confirmShouldPublish(eventHandler(event), _internalDataStreamSink);
     });
 
     _asyncHandlers.forEach((asyncEventHandler) async {
       /// Executes and `await` for each [asyncEventHandler] in turn
-      /// then publishes to the subscribers if the [HandlerReturn].[shouldPublish] flag is set
+      /// then publishes to the subscribers if the [HandlerReturnType].[shouldPublish] flag is set
       _confirmShouldPublish(
           await asyncEventHandler(event), _internalDataStreamSink);
     });
@@ -128,14 +128,14 @@ class BlocPipe extends BlocPipeSpec {
   void _processDataAsyncFirst(event) {
     _asyncHandlers.forEach((asyncEventHandler) async {
       /// Executes and `await` for each [asyncEventHandler] in turn
-      /// then publishes to the subscribers if the [HandlerReturn].[shouldPublish] flag is set
+      /// then publishes to the subscribers if the [HandlerReturnType].[shouldPublish] flag is set
       _confirmShouldPublish(
           await asyncEventHandler(event), _internalDataStreamSink);
     });
 
     _handlers.forEach((eventHandler) {
       /// Executes each [eventHandler] in turn
-      /// then publishes to the subscribers if the [HandlerReturn].[shouldPublish] flag is set
+      /// then publishes to the subscribers if the [HandlerReturnType].[shouldPublish] flag is set
       _confirmShouldPublish(eventHandler(event), _internalDataStreamSink);
     });
 
@@ -144,7 +144,7 @@ class BlocPipe extends BlocPipeSpec {
 
   /// Checks whether or not to publish the processed event
   ///
-  _confirmShouldPublish(HandlerReturn event, StreamSink sink) {
+  _confirmShouldPublish(HandlerReturnType event, StreamSink sink) {
     if (event.shouldPublish) sink.add(event.event);
     print("Called handler and processed- sending ${event.event}");
   }
@@ -184,12 +184,31 @@ class BlocPipe extends BlocPipeSpec {
   }
 }
 
-/// [HandlerReturn] object returned by every [HandlerFunction]
+/// [HandlerReturnType] object returned by every [HandlerFunction]
 ///
 /// this [event] the data event returned after it has been through the [HandlerFunction]
-class HandlerReturn {
+abstract class HandlerReturnType {
   final event;
   final bool shouldPublish;
 
-  HandlerReturn(this.event, {this.shouldPublish: false});
+  HandlerReturnType(this.event, {this.shouldPublish: false});
+}
+
+/// [HandlerReturnType] object returned by every [HandlerFunction]
+///
+/// this [event] the data event returned after it has been through the [HandlerFunction]
+/// returns `false` by default
+class HandlerReturnPublishFalse extends HandlerReturnType {
+  HandlerReturnPublishFalse(
+    event,
+  ) : super(event, shouldPublish: false);
+}
+
+/// [HandlerReturnType] object returned by every [HandlerFunction]
+///
+/// returns `true` by default
+class HandlerReturnPublishTrue extends HandlerReturnType {
+  HandlerReturnPublishTrue(
+    event,
+  ) : super(event, shouldPublish: true);
 }

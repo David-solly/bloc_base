@@ -26,7 +26,7 @@ class DefaultFunctions {
   /// Simple [HandlerFunction] that prints out the event to console
   ///
   /// [processor] is not used in this funtion
-  static HandlerReturn simpleLogHandler(
+  static HandlerReturnType simpleLogHandler(
     /// the data being passed through the [BlocPipe]
     event, {
 
@@ -34,6 +34,6 @@ class DefaultFunctions {
     hasToString: false,
   }) {
     print("received event ${hasToString ? event.toString() : event}");
-    return HandlerReturn(event);
+    return HandlerReturnPublishTrue(event);
   }
 }
