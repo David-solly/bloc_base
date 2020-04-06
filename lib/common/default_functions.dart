@@ -12,6 +12,17 @@ class DefaultFunctions {
       });
   }
 
+  /// Append [functionList] list into [originalList] by iteration while checking for errors
+  static void appendAsyncFunctionsList(List<AsyncHandlerFunction> functionList,
+      List<AsyncHandlerFunction> originalList) {
+    assert(originalList != null,
+        "Warning attempting to append functionList to a null list");
+    if (functionList != null)
+      functionList.forEach((handlerFunction) {
+        if (handlerFunction != null) originalList.add(handlerFunction);
+      });
+  }
+
   /// Simple [HandlerFunction] that prints out the event to console
   ///
   /// [processor] is not used in this funtion

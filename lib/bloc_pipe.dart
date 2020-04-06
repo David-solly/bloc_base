@@ -13,9 +13,15 @@ typedef StreamEventHandler(event);
 
 typedef HandlerReturn HandlerFunction(event);
 
+typedef Future<HandlerReturn> AsyncHandlerFunction(event);
+
 /// Adds [functionList] to [originalList]
 typedef void UpdateList(
     List<HandlerFunction> functionList, List<HandlerFunction> originalList);
+
+/// Adds [functionList] to [originalList]
+typedef void UpdateAsyncList(List<AsyncHandlerFunction> functionList,
+    List<AsyncHandlerFunction> originalList);
 
 /// A class to abstract the boiler plate of [Stream] and [StreamSink] creation
 ///
@@ -35,6 +41,13 @@ class BlocPipe extends BlocPipeSpec {
   /// to subcribers of the stream
   final List<HandlerFunction> _handlers = [];
 
+  /// list of [AsyncHandlerFunction] are iterated over at each data event
+  ///
+  /// Handles the events that get passed for publishing
+  /// [AsyncHandlerFunction] is used to process the data before publishing
+  /// to subcribers of the stream
+  final List<AsyncHandlerFunction> _asyncHandlers = [];
+
   /// Indicates wether to intercept the events or not
   ///
   /// constructor flag [isPassThrough] should be set to bypass the [eventHandler].
@@ -47,19 +60,30 @@ class BlocPipe extends BlocPipeSpec {
 
   BlocPipe(
       {eventHandlers,
-      listUpdater: DefaultFunctions.appendFunctionsList,
+      asyncEventHandlers,
+      UpdateList functionListUpdater: DefaultFunctions.appendFunctionsList,
+      UpdateAsyncList asyncFunctionlistUpdater:
+          DefaultFunctions.appendAsyncFunctionsList,
+      bool asyncFirst: false,
       this.isPassThrough: false}) {
     /// Updates the initial [_handlers] list if a [eventHandlers] list was provided
-    _updateListOfHandlers(eventHandlers, _handlers, listUpdater);
+    _updateListOfHandlers(eventHandlers, _handlers, functionListUpdater);
+
+    /// Updates the initial [_asyncHandlers] list if a [eventHandlers] list was provided
+    _updateListOfAsyncHandlers(
+        asyncEventHandlers, _asyncHandlers, asyncFunctionlistUpdater);
 
     /// listens for [publish] events and redirects them for processing
     ///
     /// listens to the stream and send events either to;
     /// [simpleHandler] or [_passThroughHandler]
-    this
-        ._sinkPovidercontroller
-        .stream
-        .listen(isPassThrough ? _passThroughHandler : _processData);
+    ///
+    /// Default execution is [_handlers] are executed first then the [_asyncHandlers] next
+    /// Setting the [asyncFirst] flag to `true`, reverses this order
+    /// This can only be set at the moment of instantiation
+    this._sinkPovidercontroller.stream.listen(isPassThrough
+        ? _passThroughHandler
+        : asyncFirst ? _processDataAsyncFirst : _processData);
   }
 
   @override
@@ -73,18 +97,49 @@ class BlocPipe extends BlocPipeSpec {
     listFunction.call(list, original);
   }
 
-  /// Receives the data from [publish] into the internal [_dataSink] for processing
+  void _updateListOfAsyncHandlers(
+      list, original, UpdateAsyncList listFunction) {
+    listFunction.call(list, original);
+  }
+
+  /// Processes the data [event] that was [publish]ed into the internal [_dataSink] for processing
   ///
   /// This allows a middleware to be set up to process the data as it
   /// passes through, providing the [isPassThrough] flag is not set
   void _processData(event) {
     _handlers.forEach((eventHandler) {
-      /// Executes each handler in turn and then publishes to the subscribers
-      /// for each handler in the list
+      /// Executes each [eventHandler] in turn
+      /// then publishes to the subscribers if the [HandlerReturn].[shouldPublish] flag is set
       _confirmShouldPublish(eventHandler(event), _internalDataStreamSink);
     });
 
-    print("finished processing _handlers");
+    _asyncHandlers.forEach((asyncEventHandler) async {
+      /// Executes and `await` for each [asyncEventHandler] in turn
+      /// then publishes to the subscribers if the [HandlerReturn].[shouldPublish] flag is set
+      _confirmShouldPublish(
+          await asyncEventHandler(event), _internalDataStreamSink);
+    });
+
+    print("finished processing _handlers and _asyncHandlers");
+  }
+
+  /// like [_processData] except executes async functions first
+  /// as per the [asyncFirst] constructor flag
+  void _processDataAsyncFirst(event) {
+    _asyncHandlers.forEach((asyncEventHandler) async {
+      /// Executes and `await` for each [asyncEventHandler] in turn
+      /// then publishes to the subscribers if the [HandlerReturn].[shouldPublish] flag is set
+      _confirmShouldPublish(
+          await asyncEventHandler(event), _internalDataStreamSink);
+    });
+
+    _handlers.forEach((eventHandler) {
+      /// Executes each [eventHandler] in turn
+      /// then publishes to the subscribers if the [HandlerReturn].[shouldPublish] flag is set
+      _confirmShouldPublish(eventHandler(event), _internalDataStreamSink);
+    });
+
+    print("finished processing _asyncHandlers then => _handlers");
   }
 
   /// Checks whether or not to publish the processed event
@@ -117,6 +172,15 @@ class BlocPipe extends BlocPipeSpec {
         "An error has occured -- the handler list in the [BlocPipe] should not be null: library 'bloc_base'");
 
     this._handlers.add(handlerFunction);
+  }
+
+  void addAsyncHandler(AsyncHandlerFunction asyncHandlerFunction) {
+    assert(asyncHandlerFunction != null,
+        "Attempt to add a null function to the hadler list. Please define a function before adding it");
+    assert(this._asyncHandlers != null,
+        "An error has occured -- the handler list in the [BlocPipe] should not be null: library 'bloc_base'");
+
+    this._asyncHandlers.add(asyncHandlerFunction);
   }
 }
 
