@@ -3,7 +3,7 @@ library bloc_base;
 import 'dart:async';
 
 /// An abstract class to provide an interface for bloc classes to implement
-abstract class BlocBase {
+abstract class BlocBase<K, T> {
   void dispose();
 
   /// A [Stream] exposed by all blocs of extending this type
