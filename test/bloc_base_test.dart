@@ -6,7 +6,10 @@ import 'package:bloc_base/bloc_base.dart';
 
 void main() {
   group("Test bloc pipe functionality", () {
-    final BlocPipe<int> pipe = BlocPipe();
+    ///[<T>BlocPipe] will throw an error at runtime as expected
+    //final BlocPipe<int> pipe = BlocPipe();
+
+    final BlocPipe pipe = BlocPipe();
     final pipeStream = pipe.datStream;
 
    

@@ -26,6 +26,7 @@ typedef void UpdateAsyncList(List<AsyncHandlerFunction> functionList,
 /// A class to abstract the boiler plate of [Stream] and [StreamSink] creation
 ///
 ///This takes care of the 'plumbing' when it comes to streams and sinks
+///Defining a `type` `<T>` only modifies the output [datStream]
 class BlocPipe <T>extends BlocPipeSpec {
   StreamController _sinkPovidercontroller = StreamController.broadcast();
   StreamSink get _dataSink => _sinkPovidercontroller.sink;
