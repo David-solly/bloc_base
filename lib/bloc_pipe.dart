@@ -26,11 +26,11 @@ typedef void UpdateAsyncList(List<AsyncHandlerFunction> functionList,
 /// A class to abstract the boiler plate of [Stream] and [StreamSink] creation
 ///
 ///This takes care of the 'plumbing' when it comes to streams and sinks
-class BlocPipe extends BlocPipeSpec {
+class BlocPipe <T>extends BlocPipeSpec {
   StreamController _sinkPovidercontroller = StreamController.broadcast();
   StreamSink get _dataSink => _sinkPovidercontroller.sink;
 
-  StreamController _streamProviderController = StreamController.broadcast();
+  StreamController<T> _streamProviderController = StreamController<T>.broadcast();
   StreamSink get _internalDataStreamSink => _streamProviderController.sink;
   Stream get datStream => _streamProviderController.stream;
 
@@ -87,7 +87,7 @@ class BlocPipe extends BlocPipeSpec {
   }
 
   @override
-  void onDispose() {
+  void dispose() {
     _sinkPovidercontroller.close();
     _streamProviderController.close();
     _internalDataStreamSink.close();

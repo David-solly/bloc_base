@@ -6,8 +6,10 @@ import 'package:bloc_base/bloc_base.dart';
 
 void main() {
   group("Test bloc pipe functionality", () {
-    final BlocPipe pipe = BlocPipe();
+    final BlocPipe<int> pipe = BlocPipe();
     final pipeStream = pipe.datStream;
+
+   
 
     test('Test BlocPipe initialisations', () {
       expect((pipe is BlocPipe), true);
