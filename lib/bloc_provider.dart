@@ -1,8 +1,6 @@
 import 'package:bloc_base/bloc_base.dart';
 import 'package:flutter/material.dart';
 
-Type _typeOOf<T>() => T;
-
 class BlocProvider<T extends BlocBase> extends StatefulWidget {
   BlocProvider({
     Key key,
@@ -17,10 +15,9 @@ class BlocProvider<T extends BlocBase> extends StatefulWidget {
   _BlocProviderState<T> createState() => _BlocProviderState<T>();
 
   static T of<T extends BlocBase>(BuildContext context) {
-    final type = _typeOOf<_BlocProviderInherited<T>>();
-
-    _BlocProviderInherited<T> provider =
-        context.ancestorInheritedElementForWidgetOfExactType(type)?.widget;
+    _BlocProviderInherited<T> provider = context
+        .getElementForInheritedWidgetOfExactType<_BlocProviderInherited<T>>()
+        .widget;
     return provider?.bloc;
   }
 }
