@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:bloc_base/bloc_pipe.dart';
 import 'package:bloc_base/common/default_functions.dart';
+import 'package:bloc_base/testing/single_test_model.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:bloc_base/bloc_base.dart';
@@ -11,8 +14,6 @@ void main() {
 
     final BlocPipe pipe = BlocPipe();
     final pipeStream = pipe.datStream;
-
-   
 
     test('Test BlocPipe initialisations', () {
       expect((pipe is BlocPipe), true);
@@ -80,4 +81,67 @@ void main() {
       });
     });
   });
+
+  group('Test Bloc"', () {
+    final TestBloc tbloc = TestBloc();
+    final testPipe = tbloc.pipe;
+
+    test('Test initial state', () {
+      expect(tbloc.initialstate, "zero");
+    });
+    test('Test Basic Pass', () {
+      testPipe.publish(-1);
+      expectLater(testPipe.datStream, emits("zero"));
+    });
+
+    test('Test Basic Pass Sub', () {
+      testPipe.publish(-1);
+      expectLater(tbloc.subscribe(), emits("zero"));
+    });
+
+    // test('Test Basic Pass Sub topic List', () {
+    //   testPipe.publish(-1);
+    //   expectLater(tbloc.subscribe(topics: ["one"]), emits("one"));
+    // });
+
+    final suite = <S<List<int>, List<String>, List<String>>>[
+      S(testID: "Sub for 1", data: [1], expected: ["one"], value: ["one"]),
+      S(
+          testID: "Sub for 2,3,5",
+          data: [2, 3, 5],
+          expected: ["two", "three", "five"],
+          value: ["two", "three", "five"]),
+    ];
+
+    suite.forEach((tc) {
+      test("Subcribe To Specific state :: ${tc.testID}", () async {
+        final stream = tbloc.subscribe(topics: tc.value);
+        tc.data.forEach((element) async {
+          testPipe.publish(element);
+        });
+        expectLater(stream, emitsInOrder(tc.expected));
+      });
+    });
+  });
+}
+
+class TestBloc extends BlocBase<int, String> {
+  TestBloc() : super() {
+    pipe.addHandler((event) {
+      final str = intString[event];
+      return HandlerPublish(str ?? currentstate);
+    });
+  }
+
+  final Map<int, String> intString = {
+    0: "zero",
+    1: "one",
+    2: "two",
+    3: "three",
+    4: "four",
+    5: "five"
+  };
+
+  @override
+  String get initialstate => "zero";
 }
