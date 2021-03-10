@@ -27,13 +27,14 @@ typedef void UpdateAsyncList(List<AsyncHandlerFunction> functionList,
 ///
 ///This takes care of the 'plumbing' when it comes to streams and sinks
 ///Defining a `type` `<T>` only modifies the output [datStream]
-class BlocPipe <T>extends BlocPipeSpec {
+class BlocPipe<E, S> extends BlocPipeSpec {
   StreamController _sinkPovidercontroller = StreamController.broadcast();
   StreamSink get _dataSink => _sinkPovidercontroller.sink;
 
-  StreamController<T> _streamProviderController = StreamController<T>.broadcast();
+  StreamController<S> _streamProviderController =
+      StreamController<S>.broadcast();
   StreamSink get _internalDataStreamSink => _streamProviderController.sink;
-  Stream get datStream => _streamProviderController.stream;
+  Stream<S> get datStream => _streamProviderController.stream;
 
   /// list of [HandlerFunction] are iterated over at each data event
   ///
@@ -84,7 +85,9 @@ class BlocPipe <T>extends BlocPipeSpec {
     /// This can only be set at the moment of instantiation
     this._sinkPovidercontroller.stream.listen(isPassThrough
         ? _passThroughHandler
-        : asyncFirst ? _processDataAsyncFirst : _processData);
+        : asyncFirst
+            ? _processDataAsyncFirst
+            : _processData);
   }
 
   @override
@@ -162,8 +165,15 @@ class BlocPipe <T>extends BlocPipeSpec {
   /// Pipes the data through the internal sink to be processed.
   /// Similarly in redux, middleware would receive this packet of data
   /// then after processing, send it to the listeners of the [dataStream]
-  void publish(event) {
+  void publish<E>(E event) {
     this._dataSink.add(event);
+  }
+
+  Stream<S> subscribe(List<S> topics) {
+    if (topics == null) {
+      return this.datStream;
+    }
+    return this.datStream.where((event) => topics.contains(event));
   }
 
   void addHandler(HandlerFunction handlerFunction) {
