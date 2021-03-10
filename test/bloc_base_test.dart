@@ -98,7 +98,11 @@ void main() {
       testPipe.publish(-1);
       expectLater(tbloc.subscribe(), emits("zero"));
     });
-
+    test('Test Sub by Type', () {
+      testPipe.publish(-1);
+      expectLater(
+          tbloc.subscribe(topics: [String], isType: true), emits("zero"));
+    });
     // test('Test Basic Pass Sub topic List', () {
     //   testPipe.publish(-1);
     //   expectLater(tbloc.subscribe(topics: ["one"]), emits("one"));

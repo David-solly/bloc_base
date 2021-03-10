@@ -12,8 +12,8 @@ abstract class BlocBase<E, S>
     subToState(_pipe.datStream);
   }
 
-  Stream<S> subscribe({List<S> topics}) {
-    return this.pipe.subscribe(topics);
+  Stream<S> subscribe({List topics, isType: false}) {
+    return this.pipe.subscribe(topics, isType: isType);
   }
 
   S state;

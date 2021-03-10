@@ -169,10 +169,15 @@ class BlocPipe<E, S> extends BlocPipeSpec {
     this._dataSink.add(event);
   }
 
-  Stream<S> subscribe(List<S> topics) {
+  Stream<S> subscribe(List topics, {isType: false}) {
     if (topics == null) {
       return this.datStream;
     }
+    if (isType)
+      return this
+          .datStream
+          .where((event) => topics.contains(event.runtimeType));
+
     return this.datStream.where((event) => topics.contains(event));
   }
 
