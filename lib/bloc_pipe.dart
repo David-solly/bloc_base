@@ -33,7 +33,7 @@ class BlocPipe<E, S> extends BlocPipeSpec {
 
   StreamController<S> _streamProviderController =
       StreamController<S>.broadcast();
-  StreamSink get _internalDataStreamSink => _streamProviderController.sink;
+  StreamSink<S> get _internalDataStreamSink => _streamProviderController.sink;
   Stream<S> get datStream => _streamProviderController.stream;
 
   /// list of [HandlerFunction] are iterated over at each data event
