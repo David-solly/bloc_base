@@ -60,6 +60,12 @@ class BlocPipe<E, S> extends BlocPipeSpec {
   /// This is set on init so cannot be undone for a [BlocPipe]
   final isPassThrough;
 
+  /// Returns a straight pass through pipe of a single type `K`
+  /// with [isPassThrough] set to `true`
+  static BlocPipe straigh<K>() {
+    return new BlocPipe<K, K>(isPassThrough: true);
+  }
+
   BlocPipe(
       {eventHandlers,
       asyncEventHandlers,
