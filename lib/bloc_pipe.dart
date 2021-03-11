@@ -257,3 +257,13 @@ class HandlerPublishLog extends HandlerReturnType {
       : super(event,
             shouldPublish: true, handler: DefaultFunctions.simpleLogHandler);
 }
+
+/// [HandlerReturnType] object returned by every [HandlerFunction]
+///
+/// [shouldPublish] returns `false` by default and includes a [handler] for
+/// logging the output of the function
+class HandlerDiscardLog extends HandlerReturnType {
+  HandlerDiscardLog(event, {handler})
+      : super(event,
+            shouldPublish: false, handler: DefaultFunctions.simpleLogHandler);
+}
