@@ -74,14 +74,18 @@ class BlocPipe<E, S> extends BlocPipeSpec {
     return new BlocPipe<K, K>(isPassThrough: true);
   }
 
-  BlocPipe(
-      {eventHandlers,
-      asyncEventHandlers,
-      UpdateList functionListUpdater: DefaultFunctions.appendFunctionsList,
-      UpdateAsyncList asyncFunctionlistUpdater:
-          DefaultFunctions.appendAsyncFunctionsList,
-      bool asyncFirst: false,
-      this.isPassThrough: false}) {
+  final bool logFinished;
+
+  BlocPipe({
+    eventHandlers,
+    asyncEventHandlers,
+    UpdateList functionListUpdater: DefaultFunctions.appendFunctionsList,
+    UpdateAsyncList asyncFunctionlistUpdater:
+        DefaultFunctions.appendAsyncFunctionsList,
+    bool asyncFirst: false,
+    this.isPassThrough: false,
+    this.logFinished: false,
+  }) {
     /// Updates the initial [_handlers] list if a [eventHandlers] list was provided
     _updateListOfHandlers(eventHandlers, _handlers, functionListUpdater);
 
@@ -137,8 +141,8 @@ class BlocPipe<E, S> extends BlocPipeSpec {
       _confirmShouldPublish(
           await asyncEventHandler(event), _internalDataStreamSink);
     });
-
-    print("finished processing _handlers and _asyncHandlers");
+    if (this.logFinished)
+      print("finished processing _handlers and _asyncHandlers");
   }
 
   /// like [_processData] except executes async functions first
@@ -157,7 +161,8 @@ class BlocPipe<E, S> extends BlocPipeSpec {
       _confirmShouldPublish(eventHandler(event), _internalDataStreamSink);
     });
 
-    print("finished processing _asyncHandlers then => _handlers");
+    if (this.logFinished)
+      print("finished processing _asyncHandlers then => _handlers");
   }
 
   /// Checks whether or not to publish the processed event
