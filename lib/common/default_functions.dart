@@ -34,6 +34,13 @@ class DefaultFunctions {
     hasToString: false,
   }) {
     print("received event ${hasToString ? event.toString() : event}");
-    return HandlerPublish(event);
+    return HandlerDiscard(event);
+  }
+
+  /// Simple [HandlerFunction] that prints out the [event] `Type` to console
+  ///
+  static HandlerReturnType simpleTypeLogger<B>(event, {tag}) {
+    print("$B $tag received event :: ${event.runtimeType}");
+    return HandlerDiscard(event);
   }
 }
