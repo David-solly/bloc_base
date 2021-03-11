@@ -164,7 +164,8 @@ class BlocPipe<E, S> extends BlocPipeSpec {
   ///
   _confirmShouldPublish(HandlerReturnType event, StreamSink sink) {
     if (event.shouldPublish) sink.add(event.event);
-    print("Called handler and processed- sending ${event.event}");
+    if (event.handler == null) return;
+    event.handler(event);
   }
 
   /// Receives the data from [publish] into the internal [_dataSink]
@@ -222,8 +223,9 @@ class BlocPipe<E, S> extends BlocPipeSpec {
 abstract class HandlerReturnType {
   final event;
   final bool shouldPublish;
+  final HandlerFunction handler;
 
-  HandlerReturnType(this.event, {this.shouldPublish: false});
+  HandlerReturnType(this.event, {this.shouldPublish: false, this.handler});
 }
 
 /// [HandlerReturnType] object returned by every [HandlerFunction]
@@ -231,16 +233,27 @@ abstract class HandlerReturnType {
 /// The [event] is the data event returned after it has been through the [HandlerFunction]
 /// [shouldPublish] returns `false` by default
 class HandlerDiscard extends HandlerReturnType {
-  HandlerDiscard(
-    event,
-  ) : super(event, shouldPublish: false);
+  HandlerDiscard(event, {handler})
+      : super(
+          event,
+          shouldPublish: false,
+        );
 }
 
 /// [HandlerReturnType] object returned by every [HandlerFunction]
 ///
 /// [shouldPublish] returns `true` by default
 class HandlerPublish extends HandlerReturnType {
-  HandlerPublish(
-    event,
-  ) : super(event, shouldPublish: true);
+  HandlerPublish(event, {handler})
+      : super(event, shouldPublish: true, handler: handler);
+}
+
+/// [HandlerReturnType] object returned by every [HandlerFunction]
+///
+/// [shouldPublish] returns `true` by default and includes a [handler] for
+/// logging the output of the function
+class HandlerPublishLog extends HandlerReturnType {
+  HandlerPublishLog(event, {handler})
+      : super(event,
+            shouldPublish: true, handler: DefaultFunctions.simpleLogHandler);
 }
