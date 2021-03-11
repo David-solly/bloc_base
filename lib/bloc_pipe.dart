@@ -170,7 +170,7 @@ class BlocPipe<E, S> extends BlocPipeSpec {
   _confirmShouldPublish(HandlerReturnType event, StreamSink sink) {
     if (event.shouldPublish) sink.add(event.event);
     if (event.handler == null) return;
-    event.handler(event);
+    event.handler(event.event);
   }
 
   /// Receives the data from [publish] into the internal [_dataSink]
