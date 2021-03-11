@@ -23,24 +23,11 @@ class DefaultFunctions {
       });
   }
 
-  /// Simple [HandlerFunction] that prints out the event to console
+  /// Simple [HandlerFunction] that prints out the [event] and `type` to console
   ///
-  /// [processor] is not used in this funtion
-  static HandlerReturnType simpleLogHandler(
-    /// the data being passed through the [BlocPipe]
-    event, {
-
-    /// set [hasToString] to call the object `toString()` function
-    hasToString: false,
-  }) {
-    print("received event ${hasToString ? event.toString() : event}");
-    return HandlerDiscard(event);
-  }
-
-  /// Simple [HandlerFunction] that prints out the [event] `Type` to console
-  ///
-  static HandlerReturnType simpleTypeLogger<B>(event, {tag}) {
-    print("$B $tag received event :: ${event.runtimeType}");
+  static HandlerReturnType simpleLogHandler(event, {name: "simpleLogHandler"}) {
+    print("$name :: type =>[${event.runtimeType}]");
+    print("$name :: data =>[$event]");
     return HandlerDiscard(event);
   }
 }
