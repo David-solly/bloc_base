@@ -23,10 +23,11 @@ typedef void UpdateList(
 typedef void UpdateAsyncList(List<AsyncHandlerFunction> functionList,
     List<AsyncHandlerFunction> originalList);
 
-/// A class to abstract the boiler plate of [Stream] and [StreamSink] creation
+/// A class to abstract the boiler plate of[<E>StreamSink] and [<S>Stream] and
 ///
 ///This takes care of the 'plumbing' when it comes to streams and sinks
-///Defining a `type` `<T>` only modifies the output [datStream]
+///Defining a `type` `<E>` only modifies the output [StreamSink]
+///Defining a `type` `<S>` only modifies the output [datStream]
 class BlocPipe<E, S> extends BlocPipeSpec {
   StreamController _sinkPovidercontroller = StreamController.broadcast();
   StreamSink get _dataSink => _sinkPovidercontroller.sink;
@@ -49,6 +50,13 @@ class BlocPipe<E, S> extends BlocPipeSpec {
   /// [AsyncHandlerFunction] is used to process the data before publishing
   /// to subcribers of the stream
   final List<AsyncHandlerFunction> _asyncHandlers = [];
+
+  /// list of [Middlewares] are iterated over at each data event
+  ///
+  /// Handles the events that get passed for publishing
+  /// [Middlewares] is used to process the data before publishing
+  /// to subcribers of the stream
+  final List<AsyncHandlerFunction> _middlewares = [];
 
   /// Indicates wether to intercept the events or not
   ///
