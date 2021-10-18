@@ -56,7 +56,7 @@ class BlocPipe<E, S> extends BlocPipeSpec {
   /// Handles the events that get passed for publishing
   /// [Middlewares] is used to process the data before publishing
   /// to subcribers of the stream
-  final List<AsyncHandlerFunction> _middlewares = [];
+  // final List<AsyncHandlerFunction> _middlewares = [];
 
   /// Indicates wether to intercept the events or not
   ///
@@ -202,20 +202,10 @@ class BlocPipe<E, S> extends BlocPipeSpec {
   }
 
   void addHandler(HandlerFunction handlerFunction) {
-    assert(handlerFunction != null,
-        "Attempt to add a null function to the hadler list. Please define a function before adding it");
-    assert(this._handlers != null,
-        "An error has occured -- the handler list in the [BlocPipe] should not be null: library 'bloc_base'");
-
     this._handlers.add(handlerFunction);
   }
 
   void addAsyncHandler(AsyncHandlerFunction asyncHandlerFunction) {
-    assert(asyncHandlerFunction != null,
-        "Attempt to add a null function to the hadler list. Please define a function before adding it");
-    assert(this._asyncHandlers != null,
-        "An error has occured -- the handler list in the [BlocPipe] should not be null: library 'bloc_base'");
-
     this._asyncHandlers.add(asyncHandlerFunction);
   }
 }

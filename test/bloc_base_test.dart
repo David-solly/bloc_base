@@ -16,7 +16,9 @@ void main() {
     final pipeStream = pipe.datStream;
 
     test('Test BlocPipe initialisations', () {
+      // ignore: unnecessary_type_check
       expect((pipe is BlocPipe), true);
+      // ignore: unnecessary_type_check
       expect((pipe is BlocPipeSpec), true);
     });
     group("Test bloc pipe synchronous functionality", () {
@@ -75,8 +77,7 @@ void main() {
         pipe.publish(123456);
         String data = "333";
         String output = "Async event is \n{\n 'data': '$data' \n}";
-        expectLater(((await fAsync(data)) is HandlerReturnType),
-            HandlerDiscard("") is HandlerReturnType);
+        expectLater((await fAsync(data)) is HandlerPublish, true);
         expectLater((await fAsync(data)).event, output);
       });
     });
