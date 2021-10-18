@@ -1,6 +1,6 @@
 abstract class Middleware {
   final Middleware next;
-  final String name;
+  final String? name;
   final event;
 
   Middleware(this.event, this.next, {this.name}) {

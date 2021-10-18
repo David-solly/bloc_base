@@ -8,7 +8,7 @@ abstract class BlocActions {
 
 class ProcessAction extends BlocActions {
   final dataEvent;
-  final StreamEventHandler handler;
+  final StreamEventHandler? handler;
 
   ProcessAction(this.dataEvent, {this.handler});
 }

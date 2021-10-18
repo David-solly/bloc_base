@@ -12,18 +12,18 @@ abstract class BlocBase<E, S>
     subToState(_pipe.datStream);
   }
 
-  Stream<S> subscribe({List topics, isType: false}) {
+  Stream<S> subscribe({List? topics, isType: false}) {
     return this.pipe.subscribe(topics, isType: isType);
   }
 
-  S state;
+  S? state;
   BlocPipe<E, S> get pipe => _pipe;
 
   final BlocPipe<E, S> _pipe = BlocPipe();
 
   /// A [StreamSink] exposed by all blocs of extending this type
   /// This allows functions to interact with blocs using the same APIs
-  StreamSink<E> dataRequestSink;
+  late StreamSink<E> dataRequestSink;
 
   /// A [Stream] exposed by all blocs of extending this type
   /// This allows functions to interact with blocs using the same APIs
@@ -45,11 +45,11 @@ abstract class BlocPipeProvider<E, S> {
 }
 
 abstract class EventProcessorStream<S> {
-  Stream<S> eventProcessor;
+  Stream<S>? eventProcessor;
 }
 
 mixin StateMixin<S> {
-  S _state;
+  S? _state;
   S get currentstate => _state ?? initialstate;
 
   S get initialstate;

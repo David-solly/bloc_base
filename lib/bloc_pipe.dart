@@ -17,10 +17,10 @@ typedef Future<HandlerReturnType> AsyncHandlerFunction(event);
 
 /// Adds [functionList] to [originalList]
 typedef void UpdateList(
-    List<HandlerFunction> functionList, List<HandlerFunction> originalList);
+    List<HandlerFunction>? functionList, List<HandlerFunction> originalList);
 
 /// Adds [functionList] to [originalList]
-typedef void UpdateAsyncList(List<AsyncHandlerFunction> functionList,
+typedef void UpdateAsyncList(List<AsyncHandlerFunction>? functionList,
     List<AsyncHandlerFunction> originalList);
 
 /// A class to abstract the boiler plate of[<E>StreamSink] and [<S>Stream] and
@@ -34,7 +34,7 @@ class BlocPipe<E, S> extends BlocPipeSpec {
 
   StreamController<S> _streamProviderController =
       StreamController<S>.broadcast();
-  StreamSink<S> get _internalDataStreamSink => _streamProviderController.sink;
+  StreamSink<S?> get _internalDataStreamSink => _streamProviderController.sink;
   Stream<S> get datStream => _streamProviderController.stream;
 
   /// list of [HandlerFunction] are iterated over at each data event
@@ -170,7 +170,7 @@ class BlocPipe<E, S> extends BlocPipeSpec {
   _confirmShouldPublish(HandlerReturnType event, StreamSink sink) {
     if (event.shouldPublish) sink.add(event.event);
     if (event.handler == null) return;
-    event.handler(event.event);
+    event.handler!(event.event);
   }
 
   /// Receives the data from [publish] into the internal [_dataSink]
@@ -189,7 +189,7 @@ class BlocPipe<E, S> extends BlocPipeSpec {
     this._dataSink.add(event);
   }
 
-  Stream<S> subscribe(List topics, {isType: false}) {
+  Stream<S> subscribe(List? topics, {isType: false}) {
     if (topics == null) {
       return this.datStream;
     }
@@ -228,7 +228,7 @@ class BlocPipe<E, S> extends BlocPipeSpec {
 abstract class HandlerReturnType {
   final event;
   final bool shouldPublish;
-  final HandlerFunction handler;
+  final HandlerFunction? handler;
 
   HandlerReturnType(this.event, {this.shouldPublish: false, this.handler});
 }

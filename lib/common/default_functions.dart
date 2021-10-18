@@ -3,7 +3,7 @@ import 'package:bloc_base/bloc_pipe.dart';
 class DefaultFunctions {
   /// Append [functionList] list into [originalList] by iteration while checking for errors
   static void appendFunctionsList(
-      List<HandlerFunction> functionList, List<HandlerFunction> originalList) {
+      List<HandlerFunction>? functionList, List<HandlerFunction> originalList) {
     assert(originalList != null,
         "Warning attempting to append functionList to a null list");
     if (functionList != null)
@@ -13,7 +13,7 @@ class DefaultFunctions {
   }
 
   /// Append [functionList] list into [originalList] by iteration while checking for errors
-  static void appendAsyncFunctionsList(List<AsyncHandlerFunction> functionList,
+  static void appendAsyncFunctionsList(List<AsyncHandlerFunction>? functionList,
       List<AsyncHandlerFunction> originalList) {
     assert(originalList != null,
         "Warning attempting to append functionList to a null list");

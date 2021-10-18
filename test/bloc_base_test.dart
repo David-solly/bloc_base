@@ -84,7 +84,7 @@ void main() {
 
   group('Test Bloc"', () {
     final TestBloc tbloc = TestBloc();
-    final testPipe = tbloc.pipe;
+    final BlocPipe<int, String> testPipe = tbloc.pipe;
 
     test('Test initial state', () {
       expect(tbloc.initialstate, "zero");
@@ -119,11 +119,11 @@ void main() {
 
     suite.forEach((tc) {
       test("Subcribe To Specific state :: ${tc.testID}", () async {
-        final stream = tbloc.subscribe(topics: tc.value);
-        tc.data.forEach((element) async {
+        final Stream<String> stream = tbloc.subscribe(topics: tc.value);
+        tc.data!.forEach((element) async {
           testPipe.publish(element);
         });
-        expectLater(stream, emitsInOrder(tc.expected));
+        expectLater(stream, emitsInOrder(tc.expected!));
       });
     });
   });
