@@ -159,7 +159,7 @@ class BlocPipe<E, S> extends BlocPipeSpec {
       });
 
     if (this._syncGeneratorHandlers.length > 0)
-      this._StreamGeneratorHandlers.forEach((generator) => {
+      this._syncGeneratorHandlers.forEach((generator) => {
             generator(event).forEach((event) {
               _confirmShouldPublish(event, _internalDataStreamSink);
             })
