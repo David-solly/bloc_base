@@ -83,6 +83,34 @@ void main() {
     });
   });
 
+  group('Test Generator Bloc event handlers', () {
+    final AsyncHandlerGenerator generator = (event) async* {
+      for (var i = 0; i < 3; i++) {
+        await Future.delayed(Duration(seconds: 3));
+        final output = "gen-event-$i is \n{\n 'data': '$event' \n}";
+        print(output);
+        yield HandlerPublish(output);
+      }
+      return;
+    };
+    final BlocPipe pipe = BlocPipe();
+    pipe.addAsyncHandlerGenerator(generator);
+
+    test("test async data pass through", () async {
+      pipe.publish(123456);
+      String data = "333";
+      List<String> output = [
+        "gen-event-0 is \n{\n 'data': '123456' \n}",
+        "gen-event-1 is \n{\n 'data': '123456' \n}",
+        "gen-event-2 is \n{\n 'data': '123456' \n}",
+      ];
+
+      expectLater(pipe.datStream, emitsInOrder(output));
+
+      // expectLater((await fAsync(data)).event, output);
+    });
+  });
+
   group('Test Bloc"', () {
     final TestBloc tbloc = TestBloc();
     final BlocPipe<int, String> testPipe = tbloc.pipe;

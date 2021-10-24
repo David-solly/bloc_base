@@ -15,6 +15,10 @@ typedef HandlerReturnType HandlerFunction(event);
 
 typedef Future<HandlerReturnType> AsyncHandlerFunction(event);
 
+typedef Iterable<HandlerReturnType> SyncHandlerGenerator(event);
+
+typedef Stream<HandlerReturnType> AsyncHandlerGenerator(event);
+
 /// Adds [functionList] to [originalList]
 typedef void UpdateList(
     List<HandlerFunction>? functionList, List<HandlerFunction> originalList);
@@ -36,6 +40,9 @@ class BlocPipe<E, S> extends BlocPipeSpec {
       StreamController<S>.broadcast();
   StreamSink<S?> get _internalDataStreamSink => _streamProviderController.sink;
   Stream<S> get datStream => _streamProviderController.stream;
+
+  List<AsyncHandlerGenerator> _StreamGeneratorHandlers = [];
+  List<SyncHandlerGenerator> _syncGeneratorHandlers = [];
 
   /// list of [HandlerFunction] are iterated over at each data event
   ///
@@ -129,18 +136,35 @@ class BlocPipe<E, S> extends BlocPipeSpec {
   /// This allows a middleware to be set up to process the data as it
   /// passes through, providing the [isPassThrough] flag is not set
   void _processData(event) {
-    _handlers.forEach((eventHandler) {
-      /// Executes each [eventHandler] in turn
-      /// then publishes to the subscribers if the [HandlerReturnType].[shouldPublish] flag is set
-      _confirmShouldPublish(eventHandler(event), _internalDataStreamSink);
-    });
+    if (this._handlers.length > 0)
+      _handlers.forEach((eventHandler) {
+        /// Executes each [eventHandler] in turn
+        /// then publishes to the subscribers if the [HandlerReturnType].[shouldPublish] flag is set
+        _confirmShouldPublish(eventHandler(event), _internalDataStreamSink);
+      });
 
-    _asyncHandlers.forEach((asyncEventHandler) async {
-      /// Executes and `await` for each [asyncEventHandler] in turn
-      /// then publishes to the subscribers if the [HandlerReturnType].[shouldPublish] flag is set
-      _confirmShouldPublish(
-          await asyncEventHandler(event), _internalDataStreamSink);
-    });
+    if (this._StreamGeneratorHandlers.length > 0)
+      this._StreamGeneratorHandlers.forEach((generator) => {
+            generator(event).listen((event) {
+              _confirmShouldPublish(event, _internalDataStreamSink);
+            })
+          });
+
+    if (this._asyncHandlers.length > 0)
+      _asyncHandlers.forEach((asyncEventHandler) async {
+        /// Executes and `await` for each [asyncEventHandler] in turn
+        /// then publishes to the subscribers if the [HandlerReturnType].[shouldPublish] flag is set
+        _confirmShouldPublish(
+            await asyncEventHandler(event), _internalDataStreamSink);
+      });
+
+    if (this._syncGeneratorHandlers.length > 0)
+      this._StreamGeneratorHandlers.forEach((generator) => {
+            generator(event).forEach((event) {
+              _confirmShouldPublish(event, _internalDataStreamSink);
+            })
+          });
+
     if (this.logFinished)
       print("finished processing _handlers and _asyncHandlers");
   }
@@ -207,6 +231,14 @@ class BlocPipe<E, S> extends BlocPipeSpec {
 
   void addAsyncHandler(AsyncHandlerFunction asyncHandlerFunction) {
     this._asyncHandlers.add(asyncHandlerFunction);
+  }
+
+  void addAsyncHandlerGenerator(AsyncHandlerGenerator generator) {
+    this._StreamGeneratorHandlers.add(generator);
+  }
+
+  void addSyncHandlerGenerator(SyncHandlerGenerator generator) {
+    this._syncGeneratorHandlers.add(generator);
   }
 }
 
