@@ -84,30 +84,44 @@ void main() {
   });
 
   group('Test Generator Bloc event handlers', () {
-    final AsyncHandlerGenerator generator = (event) async* {
-      for (var i = 0; i < 3; i++) {
-        await Future.delayed(Duration(seconds: 3));
-        final output = "gen-event-$i is \n{\n 'data': '$event' \n}";
-        print(output);
-        yield HandlerPublish(output);
-      }
-      return;
-    };
-    final BlocPipe pipe = BlocPipe();
-    pipe.addAsyncHandlerGenerator(generator);
-
     test("test async data pass through", () async {
+      final BlocPipe pipe = BlocPipe();
+      final AsyncHandlerGenerator generator = (event) async* {
+        if (event is int)
+          for (var i = 0; i < 3; i++) {
+            await Future.delayed(Duration(seconds: 3));
+            final output = "gen-event-$i is \n{\n 'data': '$event' \n}";
+            print(output);
+            yield HandlerPublish(output);
+          }
+        return;
+      };
+      pipe.addAsyncHandlerGenerator(generator);
       pipe.publish(123456);
-      String data = "333";
       List<String> output = [
         "gen-event-0 is \n{\n 'data': '123456' \n}",
         "gen-event-1 is \n{\n 'data': '123456' \n}",
         "gen-event-2 is \n{\n 'data': '123456' \n}",
       ];
-
-      expectLater(pipe.datStream, emitsInOrder(output));
-
-      // expectLater((await fAsync(data)).event, output);
+      expectLater(pipe.datStream, emitsInAnyOrder(output));
+    });
+    test("test sync data pass through", () async {
+      final BlocPipe pipe = BlocPipe();
+      final SyncHandlerGenerator syncGenerator = (event) sync* {
+        print("event is $event");
+        for (var i = 0; i < event.length; i++) {
+          final output = "sync gen-event-$i";
+          print(output);
+          yield HandlerPublish(output);
+        }
+        return;
+      };
+      pipe.addSyncHandlerGenerator(syncGenerator);
+      final syncDataSeed = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
+      final syncData =
+          syncDataSeed.map((seed) => "sync gen-event-${seed - 1}").toList();
+      pipe.publish(syncData);
+      expectLater(pipe.datStream, emitsInOrder(syncData));
     });
   });
 
